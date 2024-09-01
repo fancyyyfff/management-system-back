@@ -25,7 +25,11 @@ exports.register = (req,res) => {
     const sql='select * from user_table where account=?'
     // 第一个参数是sql语句，第二个参数是参数，第三个是一个函数，用于处理结果
     db.query(sql,regInfo.account,(err,result)=>{
-        if(result.length>0){
+        // if (err) {
+        //     console.log(err)
+        //     return res.send({ status: 1, message: '查询失败' });
+        // }
+        if(result&&result.length>0){
             return res.send({
                 status:1,
             message:'账号已存在'
@@ -41,35 +45,46 @@ exports.register = (req,res) => {
 
     // 第四步：把账号和密码插入到表中
     // 只要是符合表格式的数据，都可以插入
-    const sql1='insert into users set ?'
+    const sql1='insert into user_table set ?'
 
-    // 注册身份
-    const identity='用户'
-    const create_time=new Date()
-    db.query(sql1,{
-        account:regInfo.account,
-        password:regInfo.password,
-        identity,
-        create_time,
-        // 初始未冻结状态为0
-        status:0
-    },(err,result)=>{
-        // 添加失败
-        // 影响行数没有影响
-        if(result.affectedRows !==1){
-            return res.send({
-                status:1,
-                message:'注册失败'
-            })
-        }
-        res.send({
-            status:1,
-            message:'注册成功'
-        })
-    })
+//     const sql1 = `
+//     INSERT INTO your_table_name (account, password, identity, create_time, status) 
+//     VALUES (?, ?, ?, ?, ?);
+// `; 
 
-    
-    
+// 注册身份
+const identity = '用户';
+const create_time = new Date();
+
+db.query(sql1, {
+    account:regInfo.account,
+    password:regInfo.password,
+    identity,
+    create_time,
+    // 初始未冻结状态为0
+    status:0
+}, (err, result) => {
+    if (err) {
+        console.log("发生错误：" + err);
+        return res.send({
+            status: 1,
+            message: '注册失败，发生错误: ' + err
+        });
+    }
+    // 添加失败
+    // 影响行数没有影响
+    console.log('result是：' + JSON.stringify(result));
+    if (!result || result.affectedRows !== 1) {
+        return res.send({
+            status: 1,
+            message: '注册失败'
+        });
+    }
+    res.send({
+        status: 1,
+        message: '注册成功'
+    });
+});   
 })   
 }
 exports.login = (req,res) => {
@@ -99,7 +114,7 @@ exports.login = (req,res) => {
         update_time:'',
     }
     // 设置token的有效时长
-    const tokenStr = jwt.sign(user,jwtConfig.jweSecretKey,{
+    const tokenStr = jwt.sign(user,jwtConfig.jwtSecretKey,{
         expiresIn:'7h'
     })
     // 返回给前端的数据
