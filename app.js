@@ -34,7 +34,7 @@ app.use((req,res,next) => {
 const jwtConfig=require('./jwt_config/index')
 // 统一处理错误；
 const {expressjwt:jwt} = require('express-jwt')
-// 暂时停用jwt
+// jwt
 // app.use(jwt({
 //     secret:jwtConfig.jwtSecretKey,algorithms:['HS256']
 // }).unless({
@@ -87,6 +87,9 @@ app.use('/api',loginRouter)
 // 查看用户详情的路由
 const userRouter = require('./router/userInfo')
 app.use('/user',userRouter)
+// 上传轮播图的路由
+const settingRouter = require('./router/setting')
+app.use('/set',settingRouter)
 
 // 考虑在全局处理未捕获的异常，确保在生产环境中，服务器不会因未处理的异常而崩溃。
 process.on('uncaughtException', (err) => {

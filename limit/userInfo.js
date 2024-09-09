@@ -9,7 +9,17 @@ exports.name_limit = {
     // 表示对req.body里面的数据进行验证
     body:{
         id,
-        name
+        oldPassword,
+        newPassword
+    }
+}
+
+
+exports.changeName_limit = {
+    // 表示对req.body里面的数据进行验证
+    body:{
+        name,
+        id
     }
 }
 
@@ -18,6 +28,14 @@ exports.password_limit = {
     body:{
         id,
         oldPassword,
+        newPassword
+    }
+}
+
+exports.forgetPassword_limit = {
+    // 表示对req.body里面的数据进行验证
+    body:{
+        id,
         newPassword
     }
 }

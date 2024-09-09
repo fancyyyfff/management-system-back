@@ -87,6 +87,8 @@ db.query(sql1, {
 });   
 })   
 }
+
+// 登录
 exports.login = (req,res) => {
     const logInfo = req.body
 
@@ -109,7 +111,7 @@ exports.login = (req,res) => {
     const user = {
         ...result[0],
         password:'',
-        imageUrl:'',
+        image_url:'',
         create_time:'',
         update_time:'',
     }
@@ -117,6 +119,9 @@ exports.login = (req,res) => {
     const tokenStr = jwt.sign(user,jwtConfig.jwtSecretKey,{
         expiresIn:'7h'
     })
+    console.log("生成的tokenStr是：",tokenStr)
+    console.log("获取到的user是：",user)
+    console.log("查询得到的的result[0]是",result[0])
     // 返回给前端的数据
     res.send({
         results:result[0],

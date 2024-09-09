@@ -20,7 +20,6 @@ exports.uploadAvatar =(req,res)=>{
     // fs.renameSync('./public/upload/'+oldName,'./public/upload/'+newName)
 try {
     fs.renameSync('./public/upload/' + oldName, './public/upload/' + newName);
-    console.log('File renamed successfully');
 } catch (err) {
     console.error('Error renaming file:', err);
     // 可以选择向客户端返回错误信息
@@ -45,6 +44,7 @@ try {
 
 // 获取用户的账号
 exports.getUserInfo = (req,res)=>{
+    console.log("在后端的getUserInfo接口中，获取到的前端请求中的id为",req.body.id)
     const sql='select * from user_table where id=?'
     db.query(sql,req.body.id,(err,result)=>{
         if(err) return res.cc(err)
@@ -95,5 +95,66 @@ db.query(sql,id,(err,result)=>{
     })
     })
 })
- 
 }
+
+// 忘记密码：
+// 1. 验证账号和邮箱是否存在
+exports.verifyAccountAndEmail = (req,res)=>{
+    const {account,email} = req.body
+    const sql='select * from user_table where account=?'
+    db.query(sql,[account,email],(err,result)=>{
+        if(err) return res.cc(err)
+        if(email!=result[0].email){
+            res.send({
+                status:1,
+                message:'验证失败'          
+            })
+        }else {
+            res.send({
+                status:0,
+                message:'验证成功',
+                id:result[0].id
+            })
+
+        }
+    })  
+}
+
+// 2. 修改密码
+exports.changePasswordInLogin = (req,res)=>{
+    const user = req.body
+    const sql ='update user_table set password = ? where id=?'
+    user.newPassword=bcrypt.hashSync(user.newPassword,10)
+    db.query(sql,[user.newPassword,user.id],(err,result)=>{
+        if(err) return res.cc(err)
+        res.send({
+            status:0,
+            message:'修改成功'
+    })
+    })
+}
+
+// 绑定账户
+exports.bindAccount = (req,res) =>{
+    const {account,onlyId,imageUrl} = req.body
+    console.log("调用bindAccount方法，在后端获取到的account是",account)
+    console.log("调用bindAccount方法，在后端获取到的imageUrl是",imageUrl)
+    // 先绑定Onlyid和account在image表
+    const sql = 'update image set account=? where only_id=?'
+    db.query(sql,[account,onlyId],(err,result)=>{
+        if(err) return res.cc(err)
+        if(result.affectedRows==1){
+            // 再把图片的链接绑定在user表
+            const sql1 = 'update user_table set image_url=? where account=?'
+            db.query(sql1,[imageUrl,account],(err,result)=>{
+                if(err) return res.cc(err)
+                res.send({
+                    status:0,
+                    message:'账号与图片绑定成功'           
+                })
+            })
+        }
+        
+    })
+}
+
