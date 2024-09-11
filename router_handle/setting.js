@@ -7,12 +7,6 @@ const fs = require('fs')
 
 // 上传轮播图
 exports.uploadSwiper =(req,res)=>{
-    // 拼接出一个set_name
-    // let str = ''
-    // for(let i=0; i<7 ;i++) {
-    //     str += req.body[i]
-    // }
-
     // 保存上传文件时随机生成的文件名
     // req.files是multer提供的属性，处理文件上传 ，[0]表示第一个上传的文件，是一个对象
     // 使用[0]获取对应着upload.any(),设为一个数组
@@ -29,10 +23,11 @@ try {
 }
 
     // 将文件存储到数据库
-    const sql = 'update setting  set set_value=? where set_name=?'
+    const sql = 'update setting set set_value=? where set_name=?'
     db.query(sql,[
         `http://127.0.0.1:3007/upload/${newName}`,
-        req.body.set_name
+        // 这里的写name是因为前端传来的每一个图像片段的set_name都是采用了name:这样的键值对的方式
+        req.body.name
     ],(err,result)=>{
         if(err) return res.cc(err)
         res.send({
@@ -50,11 +45,11 @@ exports.getAllSwipers =(req,res)=>{
     const sql = 'select * from setting where set_name like "swiper%"'
     db.query(sql,(err,result)=>{
         if(err) return res.cc(err)
-        res.send({
-            status:0,
-            result
-        })
-        
+        let array = []
+        result.forEach(element => {
+            array.push(element.set_value)
+        });
+        res.send(array)        
     })  
 }
 
