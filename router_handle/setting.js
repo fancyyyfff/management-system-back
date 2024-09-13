@@ -68,7 +68,7 @@ exports.getCompanyName =(req,res)=>{
 exports.changeCompanyName =(req,res)=>{
     // 将文件存储到数据库
     const sql = 'update setting set set_value=? where set_name = "公司名称"'
-    db.query(sql, req.body.set_value,(err,result)=>{
+    db.query(sql, req.body.setValue,(err,result)=>{
         if(err) return res.cc(err)
         res.send({
             status:0,
@@ -80,9 +80,10 @@ exports.changeCompanyName =(req,res)=>{
 
 // 修改公司介绍
 exports.changeCompanyIntroduce =(req,res)=>{
+    console.log("修改公司介绍接口中req.body中的参数",req.body)
     // 将文件存储到数据库
-    const sql = 'update setting set set_text=? where set_name = "公司介绍"'
-    db.query(sql, req.body.set_text,(err,result)=>{
+    const sql = "update setting set set_text=? where set_name = ?"
+    db.query(sql, [req.body.setText,req.body.setName],(err,result)=>{
         if(err) return res.cc(err)
         res.send({
             status:0,
@@ -95,8 +96,8 @@ exports.changeCompanyIntroduce =(req,res)=>{
 // 获取公司介绍
 exports.getCompanyIntroduce =(req,res)=>{
     // 将文件存储到数据库
-    const sql = 'select * from setting where set_name = "公司介绍"'
-    db.query(sql, (err,result)=>{
+    const sql = 'select * from setting where set_name = ? '
+    db.query(sql, req.body.setName,(err,result)=>{
         if(err) return res.cc(err)
         res.send(result[0].set_text)  
     })  
